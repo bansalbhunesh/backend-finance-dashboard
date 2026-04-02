@@ -33,15 +33,17 @@ def dashboard_summary(
 ) -> DashboardSummary:
     total_income = db.scalar(
         select(func.coalesce(func.sum(FinancialRecord.amount), 0)).where(
-            FinancialRecord.type == TransactionType.income
+            FinancialRecord.type == TransactionType.income,
+            FinancialRecord.is_deleted == False,
         )
     )
     total_expenses = db.scalar(
         select(func.coalesce(func.sum(FinancialRecord.amount), 0)).where(
-            FinancialRecord.type == TransactionType.expense
+            FinancialRecord.type == TransactionType.expense,
+            FinancialRecord.is_deleted == False,
         )
     )
-    count = db.scalar(select(func.count()).select_from(FinancialRecord)) or 0
+    count = db.scalar(select(func.count()).select_from(FinancialRecord).where(FinancialRecord.is_deleted == False)) or 0
     inc = _decimal(total_income)
     exp = _decimal(total_expenses)
     return DashboardSummary(
@@ -67,6 +69,7 @@ def dashboard_full(
             FinancialRecord.type,
             func.sum(FinancialRecord.amount).label("total"),
         )
+        .where(FinancialRecord.is_deleted == False)
         .group_by(FinancialRecord.category, FinancialRecord.type)
         .order_by(FinancialRecord.category, FinancialRecord.type)
     )
@@ -81,6 +84,7 @@ def dashboard_full(
 
     recent_stmt = (
         select(FinancialRecord)
+        .where(FinancialRecord.is_deleted == False)
         .order_by(FinancialRecord.occurred_at.desc())
         .limit(recent_limit)
     )
@@ -114,6 +118,7 @@ def dashboard_full(
             income_sum.label("income"),
             expense_sum.label("expense"),
         )
+        .where(FinancialRecord.is_deleted == False)
         .group_by(period_expr)
         .order_by(period_expr)
     )

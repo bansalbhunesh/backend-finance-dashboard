@@ -23,7 +23,7 @@ def list_users(
     _: Annotated[User, Depends(require_admin)],
     db: Annotated[Session, Depends(get_db)],
 ) -> list[User]:
-    return list(db.scalars(select(User).order_by(User.id)).all())
+    return list(db.scalars(select(User).where(User.is_deleted == False).order_by(User.id)).all())
 
 
 @router.post("", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
@@ -56,7 +56,7 @@ def get_user(
     db: Annotated[Session, Depends(get_db)],
 ) -> User:
     user = db.get(User, user_id)
-    if user is None:
+    if user is None or user.is_deleted:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     return user
 
@@ -69,7 +69,7 @@ def update_user(
     db: Annotated[Session, Depends(get_db)],
 ) -> User:
     user = db.get(User, user_id)
-    if user is None:
+    if user is None or user.is_deleted:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 
     updates = body.model_dump(exclude_unset=True)
@@ -105,7 +105,8 @@ def delete_user(
     if user_id == current.id:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Cannot delete your own account")
     user = db.get(User, user_id)
-    if user is None:
+    if user is None or user.is_deleted:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-    db.delete(user)
+    user.is_deleted = True
+    user.is_active = False
     db.commit()

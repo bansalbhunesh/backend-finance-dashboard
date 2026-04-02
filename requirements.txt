@@ -7,3 +7,8 @@ pydantic-settings>=2.0,<3
 python-jose[cryptography]>=3.3.0,<4
 bcrypt>=4,<5
 python-multipart>=0.0.9,<1
+slowapi>=0.1.9,<1
+
+# Dev / Test
+pytest>=8,<9
+httpx>=0.27,<1

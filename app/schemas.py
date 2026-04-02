@@ -105,6 +105,14 @@ class FinancialRecordResponse(BaseModel):
     created_at: datetime
 
 
+class PaginatedRecordResponse(BaseModel):
+    items: list[FinancialRecordResponse]
+    total: int
+    page: int
+    pages: int
+    limit: int
+
+
 # --- Dashboard ---
 class CategoryTotal(BaseModel):
     category: str
