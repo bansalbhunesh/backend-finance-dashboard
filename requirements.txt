@@ -1,0 +1,9 @@
+# Use Python 3.11 or 3.12 if install fails (wheels for pydantic-core may be unavailable on very new Python).
+fastapi>=0.110,<1
+uvicorn[standard]>=0.27,<1
+sqlalchemy>=2.0,<3
+pydantic[email]>=2.5,<3
+pydantic-settings>=2.0,<3
+python-jose[cryptography]>=3.3.0,<4
+bcrypt>=4,<5
+python-multipart>=0.0.9,<1
