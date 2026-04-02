@@ -74,6 +74,15 @@ async def log_requests(request: Request, call_next):
     return response
 
 
+@app.get("/")
+def root() -> dict[str, str]:
+    return {
+        "message": "Welcome to the Finance Dashboard Backend API",
+        "docs": "/docs",
+        "health": "/health",
+    }
+
+
 @app.get("/health")
 def health() -> dict[str, str]:
     return {"status": "ok"}
